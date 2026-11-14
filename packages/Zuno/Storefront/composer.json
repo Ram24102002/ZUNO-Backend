@@ -1,0 +1,21 @@
+{
+    "name": "zuno/storefront",
+    "description": "ZUNO storefront API, custom-tee designs and catalogue setup for Bagisto",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zuno\\Storefront\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zuno\\Storefront\\Providers\\StorefrontServiceProvider"
+            ]
+        }
+    }
+}

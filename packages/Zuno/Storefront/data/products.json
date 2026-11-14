@@ -1,0 +1,54 @@
+[
+  {
+    "id": "jersey-80",
+    "category": "Oversized Tees",
+    "name": "Jersey 80 Oversized Tee",
+    "colors": ["Black", "Brown", "Green", "Cream"],
+    "swatch": "#1a1a1a",
+    "price": 799,
+    "tag": "New",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "description": "Drop-shoulder oversized fit with a bold 80 on the chest and contrast piping on the sleeves. Heavyweight cotton built for the gym and the street.",
+    "images": [
+      "/images/products/jersey-80-1.webp",
+      "/images/products/jersey-80-2.webp",
+      "/images/products/jersey-80-3.webp",
+      "/images/products/jersey-80-4.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "flame-graphic-tee",
+    "category": "Graphic Tees",
+    "name": "Flame Graphic Tee",
+    "colors": ["Cream", "White", "Orange", "Purple"],
+    "swatch": "#efe6cf",
+    "price": 849,
+    "tag": "",
+    "sizes": ["S", "M", "L", "XL"],
+    "description": "Oversized tee with a statement flame graphic on the front and a clean back. Relaxed drop-shoulder cut, soft hand-feel cotton.",
+    "images": [
+      "/images/products/flame-tee-1.webp",
+      "/images/products/flame-tee-2.webp",
+      "/images/products/flame-tee-3.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "essential-polo",
+    "category": "Polos",
+    "name": "Essential Polo",
+    "colors": ["Bottle Green"],
+    "swatch": "#1f4d3a",
+    "price": 699,
+    "tag": "",
+    "sizes": ["S", "M", "L", "XL"],
+    "description": "Clean everyday polo in deep bottle green with a small ZUNO claw mark on the chest.",
+    "images": [
+      "/images/products/polo-green-1.webp",
+      "/images/products/polo-green-2.webp",
+      "/images/products/polo-green-3.webp"
+    ],
+    "soldOut": false
+  }
+]

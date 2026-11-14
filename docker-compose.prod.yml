@@ -1,0 +1,89 @@
+# Production backend (Oracle Cloud VM): Bagisto + MySQL behind Caddy, which gets the HTTPS certificate.
+# The React shop is on Vercel and forwards /api/zuno/* and /storage/* here (see vercel.json).
+#   docker compose -f docker-compose.prod.yml up -d --build
+# Settings come from backend/.env on the server (copy .env.example; see README "Deploy").
+services:
+  bagisto:
+    # Built on a bigger machine and copied over (docker save | docker load), or built here
+    image: zuno-backend:latest
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_NAME: ZUNO
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DEBUGBAR_ENABLED: "false"
+      APP_URL: https://${BACKEND_DOMAIN:?Set BACKEND_DOMAIN in backend/.env}
+      APP_KEY: ${APP_KEY:?Set APP_KEY in backend/.env}
+      APP_TIMEZONE: Asia/Kolkata
+      APP_CURRENCY: INR
+      APP_LOCALE: en
+      LOG_LEVEL: warning
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: bagisto
+      DB_USERNAME: bagisto
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env}
+      DB_PREFIX: ""
+      # Sessions travel over HTTPS only
+      SESSION_SECURE_COOKIE: "true"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in backend/.env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in backend/.env}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      ZUNO_IMAGES_PATH: /var/www/zuno-images
+      # The Vercel shop: password-reset links and Google sign-in return here
+      ZUNO_FRONTEND_URL: ${ZUNO_FRONTEND_URL:?Set ZUNO_FRONTEND_URL in backend/.env}
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-orders@zuno.local}
+      MAIL_FROM_NAME: ZUNO
+    volumes:
+      - storage:/var/www/bagisto/storage
+      # Product photos for the first `zuno:setup`
+      - ./seed:/var/www/zuno-images:ro,z
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    # Small-server settings: a modest buffer pool and no performance schema keep MySQL around 200 MB
+    command: --innodb-buffer-pool-size=64M --performance-schema=OFF --max-connections=40
+    environment:
+      MYSQL_DATABASE: bagisto
+      MYSQL_USER: bagisto
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in backend/.env}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      retries: 30
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      BACKEND_DOMAIN: ${BACKEND_DOMAIN}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro,z
+      - caddy:/data
+    depends_on:
+      - bagisto
+
+volumes:
+  storage:
+  mysql:
+  caddy:

@@ -1,0 +1,11 @@
+# HTTPS in front of Bagisto. Caddy fetches and renews the certificate for BACKEND_DOMAIN by itself.
+{$BACKEND_DOMAIN} {
+	encode gzip
+
+	# Custom-tee orders carry their artwork as images
+	request_body {
+		max_size 40MB
+	}
+
+	reverse_proxy bagisto:80
+}

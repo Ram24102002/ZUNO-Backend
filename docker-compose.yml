@@ -1,0 +1,74 @@
+# Local ZUNO backend: Bagisto (shop API + admin) on http://localhost:8000, MySQL inside Docker.
+#   docker compose up --build        first run installs Bagisto and creates the ZUNO catalogue
+# Settings come from backend/.env (copy .env.example).
+services:
+  bagisto:
+    build: .
+    ports:
+      - "8000:80"
+    environment:
+      APP_NAME: ZUNO
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      # Bagisto ships Laravel Debugbar; it adds about a second to every API call
+      DEBUGBAR_ENABLED: "false"
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      APP_KEY: ${APP_KEY:?Set APP_KEY in backend/.env (see .env.example)}
+      APP_TIMEZONE: Asia/Kolkata
+      APP_CURRENCY: INR
+      APP_LOCALE: en
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: bagisto
+      DB_USERNAME: bagisto
+      DB_PASSWORD: ${DB_PASSWORD:-bagisto}
+      DB_PREFIX: ""
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@zuno.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in backend/.env}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      ZUNO_IMAGES_PATH: /var/www/zuno-images
+      ZUNO_FRONTEND_URL: ${ZUNO_FRONTEND_URL:-http://localhost:5173}
+      # Local: every email is caught by Mailpit (http://localhost:8025). Set real SMTP details in production.
+      MAIL_MAILER: smtp
+      MAIL_HOST: ${MAIL_HOST:-mailpit}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-orders@zuno.local}
+      MAIL_FROM_NAME: ZUNO
+    volumes:
+      - storage:/var/www/bagisto/storage
+      # Starting product photos for `zuno:setup`
+      - ./seed:/var/www/zuno-images:ro
+      # Local development: edits to the ZUNO package apply without rebuilding the image
+      - ./packages/Zuno/Storefront:/var/www/bagisto/vendor/zuno/storefront
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "8025:8025"
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: bagisto
+      MYSQL_USER: bagisto
+      MYSQL_PASSWORD: ${DB_PASSWORD:-bagisto}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      retries: 30
+
+volumes:
+  storage:
+  mysql:
