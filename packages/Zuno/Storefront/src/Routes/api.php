@@ -35,16 +35,9 @@ Route::post('orders/pay', [CheckoutController::class, 'pay'])->middleware('throt
 Route::prefix('account')->controller(AccountController::class)->group(function () {
     Route::get('/', 'show');
 
-    Route::middleware('throttle:10,1')->group(function () {
-        Route::post('register', 'register');
-        Route::post('login', 'login');
-        Route::post('forgot-password', 'forgotPassword');
-        Route::post('reset-password', 'resetPassword');
-    });
-
     Route::post('logout', 'logout');
 
-    // Full-page visits (not fetch calls): out to Google and back
+    // The only way in. Full-page visits (not fetch calls): out to Google and back
     Route::get('google', [GoogleLoginController::class, 'redirect'])->middleware('throttle:20,1');
     Route::get('google/callback', [GoogleLoginController::class, 'callback'])->middleware('throttle:20,1');
 

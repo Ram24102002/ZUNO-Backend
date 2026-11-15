@@ -7,5 +7,18 @@
 		max_size 40MB
 	}
 
-	reverse_proxy bagisto:80
+	# Only the parts the React shop and the admin need are served here:
+	#   /api/zuno   the shop's API          /admin    the admin panel
+	#   /storage    photos and logos        /themes   the admin panel's styles and scripts
+	#   /cache      resized product images shown in the admin
+	# Everything else is Bagisto's own storefront (product pages, cart, checkout, customer login)
+	# and its web installer, which ZUNO does not use: visitors are sent to the React shop instead.
+	@bagisto path /api/zuno /api/zuno/* /admin /admin/* /storage/* /themes/* /cache/*
+	handle @bagisto {
+		reverse_proxy bagisto:80
+	}
+
+	handle {
+		redir {$ZUNO_FRONTEND_URL} 302
+	}
 }

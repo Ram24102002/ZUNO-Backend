@@ -5,6 +5,7 @@ namespace Zuno\Storefront\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Webkul\Attribute\Models\AttributeOption;
 use Webkul\Attribute\Repositories\AttributeRepository;
 use Webkul\Category\Repositories\CategoryRepository;
@@ -94,6 +95,51 @@ class Setup extends Command
         ]);
 
         DB::table('channel_translations')->update(['name' => 'ZUNO']);
+
+        // Replace the installer's "Demo store" page title and description (left alone once edited in the admin)
+        DB::table('channel_translations')->where('home_seo', 'like', '%Demo store%')->update(['home_seo' => json_encode([
+            'meta_title' => 'ZUNO',
+            'meta_keywords' => 'ZUNO, gym wear, oversized tees, custom tees',
+            'meta_description' => 'ZUNO: wear the mindset. Oversized gym wear and custom tees.',
+        ])]);
+
+        $this->applyBranding();
+    }
+
+    /**
+     * ZUNO logo and icon instead of Bagisto's: admin panel (header, sign-in page, tab icon, admin emails)
+     * and the channel (customer emails). Only fills empty settings, so a logo uploaded in the admin wins.
+     */
+    protected function applyBranding(): void
+    {
+        $source = dirname(__DIR__, 2).'/Resources/branding';
+        $disk = Storage::disk('public');
+
+        foreach (['admin-logo.svg', 'admin-favicon.svg', 'logo.png'] as $file) {
+            $disk->put("zuno-branding/$file", file_get_contents("$source/$file"));
+        }
+
+        foreach ([
+            'general.design.admin_logo.logo_image' => 'zuno-branding/admin-logo.svg',
+            'general.design.admin_logo.favicon' => 'zuno-branding/admin-favicon.svg',
+        ] as $code => $path) {
+            if (! DB::table('core_config')->where('code', $code)->whereNotNull('value')->where('value', '!=', '')->exists()) {
+                DB::table('core_config')->updateOrInsert(
+                    ['code' => $code, 'channel_code' => null, 'locale_code' => null],
+                    ['value' => $path, 'created_at' => now(), 'updated_at' => now()]
+                );
+            }
+        }
+
+        // The only attribute family ("Family" when creating a product) is called "Default"
+        DB::table('attribute_families')->where('code', 'default')->where('name', 'Default')->update(['name' => 'ZUNO clothing']);
+
+        // Bagisto's installer names the first admin "Example" (shown as "Hi ! Example" on the dashboard)
+        DB::table('admins')->where('name', 'Example')->update(['name' => 'ZUNO Admin']);
+
+        // Email clients do not show SVG, so customer emails get the PNG
+        DB::table('channels')->whereNull('logo')->orWhere('logo', '')->update(['logo' => 'zuno-branding/logo.png']);
+        DB::table('channels')->whereNull('favicon')->orWhere('favicon', '')->update(['favicon' => 'zuno-branding/admin-favicon.svg']);
     }
 
     protected function createProduct(array $data, int $position): bool

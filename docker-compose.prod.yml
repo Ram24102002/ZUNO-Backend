@@ -77,6 +77,8 @@ services:
       - "443:443"
     environment:
       BACKEND_DOMAIN: ${BACKEND_DOMAIN}
+      # Where visitors to Bagisto's own (unused) storefront pages are sent
+      ZUNO_FRONTEND_URL: ${ZUNO_FRONTEND_URL}
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro,z
       - caddy:/data

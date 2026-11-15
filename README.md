@@ -25,7 +25,9 @@ docker compose up --build     # http://localhost:8000; the first start takes a f
 ## Production (Oracle Cloud)
 
 `docker-compose.prod.yml` runs Bagisto, MySQL and Caddy, which serves HTTPS with an automatic certificate. The
-frontend on Vercel forwards `/api/zuno/*` and `/storage/*` here.
+frontend on Vercel forwards `/api/zuno/*` and `/storage/*` here. Caddy serves only the API, `/admin`, `/storage`
+and the admin's assets; every other address (Bagisto's own storefront, its customer login and its installer) is
+redirected to the React shop at `ZUNO_FRONTEND_URL`.
 
 **Every push to `main` deploys.** The GitHub Action in `.github/workflows/deploy.yml` copies the repo to
 `~/zuno-backend` on the server and runs `docker compose -f docker-compose.prod.yml up -d --build`. Products, orders
@@ -53,12 +55,18 @@ sudo docker compose -f docker-compose.prod.yml logs -f bagisto # watch the backe
 
 ## Managing the shop (admin)
 
-- **Catalog → Products**: price, photos, stock (per colour × size), categories, related products.
-- **Catalog → Categories**: the chips on the shop page. **Catalog → Reviews**: approve reviews.
-- **Marketing → Cart Rules**: coupon codes.
-- **Sales → Orders**: custom-tee orders show the mockup and downloadable artwork. Tracking numbers added to
+The ZUNO package trims Bagisto's admin to what the shop uses (`StorefrontServiceProvider::simplifyAdminMenu`), adds
+the ZUNO logo, and offers only two product types when creating a product. Hidden pages still open from their address.
+
+- **Products → All products**: price, photos, stock (per colour × size), categories, related products.
+  New clothing: type "Clothing in sizes / colours", family "ZUNO clothing".
+- **Products → Categories**: the chips on the shop page. **Products → Sizes & colours**: the size and colour options.
+- **Customers → Reviews**: approve reviews. **Customers → All customers**: accounts. Customers sign in only with
+  Google; there are no customer passwords.
+- **Coupons**: coupon codes (Bagisto's cart rules).
+- **Orders → All orders**: custom-tee orders show the mockup and downloadable artwork. Tracking numbers added to
   shipments are shown to the customer.
-- **Customers**: accounts, including those created with Google sign-in.
+- **Store settings**: Bagisto's configuration (payments, shipping, emails, logo).
 - The **Custom tee** product (SKU `zuno-custom-tee`) sets the custom-tee price. Disable it to pause custom orders.
 
 `zuno:setup` runs on every start. It only creates what's missing and never overwrites admin edits. To rebuild the

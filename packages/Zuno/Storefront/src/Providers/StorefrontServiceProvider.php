@@ -22,6 +22,10 @@ class StorefrontServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->applyRazorpayKeysFromEnv();
+        $this->limitProductTypes();
+
+        // After every package has added its menu entries
+        $this->app->booted(fn () => $this->simplifyAdminMenu());
 
         // "web" gives the API sessions (customer login) and CSRF protection
         Route::prefix('api/zuno')
@@ -42,6 +46,75 @@ class StorefrontServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([Setup::class]);
         }
+    }
+
+    /**
+     * The admin sidebar shows only what ZUNO uses, with plain names. Hidden pages still open from
+     * their address if ever needed (e.g. /admin/settings/channels).
+     */
+    protected function simplifyAdminMenu(): void
+    {
+        $hidden = [
+            'sales.bookings', 'sales.rma', 'sales.eu_withdrawals',
+            'catalog.families',
+            'customers.groups', 'customers.gdpr_requests',
+            'cms',
+            'marketing.promotions', 'marketing.communications', 'marketing.search_seo',
+            'appearance',
+            'settings.locales', 'settings.currencies', 'settings.exchange_rates', 'settings.inventory_sources',
+            'settings.channels', 'settings.roles', 'settings.data_transfer',
+        ];
+
+        $renamed = [
+            'sales' => 'Orders',
+            'sales.orders' => 'All orders',
+            'sales.transactions' => 'Payments',
+            'catalog' => 'Products',
+            'catalog.products' => 'All products',
+            'catalog.attributes' => 'Sizes & colours',
+            'customers.customers' => 'All customers',
+            'marketing' => 'Coupons',
+            'reporting' => 'Reports',
+            'settings' => 'Admin users & tax',
+            'settings.users' => 'Admin users',
+            'configuration' => 'Store settings',
+        ];
+
+        $menu = collect(config('menu.admin'));
+        $couponRoute = $menu->firstWhere('key', 'marketing.promotions.cart_rules')['route'] ?? null;
+
+        $menu = $menu
+            ->reject(fn ($item) => collect($hidden)->contains(
+                fn ($key) => $item['key'] === $key || str_starts_with($item['key'], $key.'.')
+            ))
+            ->map(function ($item) use ($renamed, $couponRoute) {
+                if (isset($renamed[$item['key']])) {
+                    $item['name'] = $renamed[$item['key']];
+                }
+
+                // "Coupons" opens the coupon codes (Bagisto's cart rules) directly
+                if ($item['key'] === 'marketing' && $couponRoute) {
+                    $item['route'] = $couponRoute;
+                }
+
+                return $item;
+            });
+
+        config(['menu.admin' => $menu->values()->all()]);
+    }
+
+    /**
+     * "Create Product" in the admin offers only the two kinds of product a clothing shop sells, with
+     * plain names. Bagisto's grouped, bundle, downloadable, virtual and booking types are hidden.
+     */
+    protected function limitProductTypes(): void
+    {
+        $types = config('product_types');
+
+        config(['product_types' => [
+            'configurable' => ['name' => 'Clothing in sizes / colours (configurable)', 'sort' => 1] + $types['configurable'],
+            'simple' => ['name' => 'Single item, no options (simple)', 'sort' => 2] + $types['simple'],
+        ]]);
     }
 
     /**

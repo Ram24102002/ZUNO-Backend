@@ -23,7 +23,7 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
     ],
 
-    // The React shop's address, used in links sent by email (password reset) and as Google's return address
+    // The React shop's address: Google sends shoppers back here after they sign in
     'frontend_url' => rtrim(env('ZUNO_FRONTEND_URL', 'http://localhost:5173'), '/'),
 
     // Where `zuno:setup` reads the starting product photos from (this repo's seed/ folder, mounted by Docker)

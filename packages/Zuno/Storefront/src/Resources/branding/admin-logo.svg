@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80">
+  <!-- ZUNO claw mark + wordmark for the admin panel. Sky blue reads on both the light and dark admin themes. -->
+  <g fill="#1d9bf0">
+    <path d="M6 66 C17 48 30 28 46 10 C36 30 26 48 13 69 Z"/>
+    <path d="M19 70 C30 52 43 32 59 14 C49 34 39 52 26 73 Z"/>
+    <path d="M32 72 C41 58 52 42 66 26 C58 44 49 58 39 74 Z"/>
+  </g>
+  <text x="76" y="58" fill="#1d9bf0" font-family="Poppins, 'Arial Black', 'Segoe UI', sans-serif" font-size="46" font-weight="900" font-style="italic" textLength="134" lengthAdjust="spacingAndGlyphs">ZUNO</text>
+</svg>
