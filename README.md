@@ -58,13 +58,16 @@ sudo docker compose -f docker-compose.prod.yml logs -f bagisto # watch the backe
 The ZUNO package trims Bagisto's admin to what the shop uses (`StorefrontServiceProvider::simplifyAdminMenu`), adds
 the ZUNO logo, and offers only two product types when creating a product. Hidden pages still open from their address.
 
+- **Home** (replaces Bagisto's dashboard, `AdminHomeController`): sales today and this month, the last 7 days,
+  orders still to pack and ship (oldest first), and sizes with 5 or fewer left.
 - **Products → All products**: price, photos, stock (per colour × size), categories, related products.
   New clothing: type "Clothing in sizes / colours", family "ZUNO clothing".
 - **Products → Categories**: the chips on the shop page. **Products → Sizes & colours**: the size and colour options.
 - **Customers → Reviews**: approve reviews. **Customers → All customers**: accounts. Customers sign in only with
   Google; there are no customer passwords.
 - **Coupons**: coupon codes (Bagisto's cart rules).
-- **Orders → All orders**: custom-tee orders show the mockup and downloadable artwork. Tracking numbers added to
+- **Reports**: sales, customer and product reports with charts.
+- **Orders**: invoices, shipments and refunds are made from an order's page. Custom-tee orders show the mockup and downloadable artwork. Tracking numbers added to
   shipments are shown to the customer.
 - **Store settings**: Bagisto's configuration (payments, shipping, emails, logo).
 - The **Custom tee** product (SKU `zuno-custom-tee`) sets the custom-tee price. Disable it to pause custom orders.

@@ -5,8 +5,11 @@ namespace Zuno\Storefront\Providers;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Webkul\Core\Http\Middleware\NoCacheMiddleware;
+use Webkul\Core\Http\Middleware\PreventRequestsDuringMaintenance;
 use Webkul\Theme\ViewRenderEventManager;
 use Zuno\Storefront\Console\Commands\Setup;
+use Zuno\Storefront\Http\Controllers\AdminHomeController;
 
 /**
  * The ZUNO storefront: a JSON API for the React site (catalogue, checkout, Razorpay),
@@ -24,8 +27,11 @@ class StorefrontServiceProvider extends ServiceProvider
         $this->applyRazorpayKeysFromEnv();
         $this->limitProductTypes();
 
-        // After every package has added its menu entries
-        $this->app->booted(fn () => $this->simplifyAdminMenu());
+        // After every package has added its menu entries and routes
+        $this->app->booted(function () {
+            $this->simplifyAdminMenu();
+            $this->replaceAdminDashboard();
+        });
 
         // "web" gives the API sessions (customer login) and CSRF protection
         Route::prefix('api/zuno')
@@ -49,13 +55,29 @@ class StorefrontServiceProvider extends ServiceProvider
     }
 
     /**
+     * Bagisto's dashboard is replaced by a simpler ZUNO home page at the same address and route name,
+     * so the login redirect and the sidebar's first item open it.
+     */
+    protected function replaceAdminDashboard(): void
+    {
+        Route::middleware(['web', PreventRequestsDuringMaintenance::class, 'admin', NoCacheMiddleware::class])
+            ->prefix(config('app.admin_url'))
+            ->get('dashboard', [AdminHomeController::class, 'index'])
+            ->name('admin.dashboard.index');
+
+        Route::getRoutes()->refreshNameLookups();
+    }
+
+    /**
      * The admin sidebar shows only what ZUNO uses, with plain names. Hidden pages still open from
-     * their address if ever needed (e.g. /admin/settings/channels).
+     * their address if ever needed (e.g. /admin/settings/channels). Invoices, shipments and refunds
+     * are made from the order page, so they have no menu entries of their own.
      */
     protected function simplifyAdminMenu(): void
     {
         $hidden = [
             'sales.bookings', 'sales.rma', 'sales.eu_withdrawals',
+            'sales.orders', 'sales.shipments', 'sales.invoices', 'sales.refunds', 'sales.transactions',
             'catalog.families',
             'customers.groups', 'customers.gdpr_requests',
             'cms',
@@ -66,9 +88,8 @@ class StorefrontServiceProvider extends ServiceProvider
         ];
 
         $renamed = [
+            'dashboard' => 'Home',
             'sales' => 'Orders',
-            'sales.orders' => 'All orders',
-            'sales.transactions' => 'Payments',
             'catalog' => 'Products',
             'catalog.products' => 'All products',
             'catalog.attributes' => 'Sizes & colours',
