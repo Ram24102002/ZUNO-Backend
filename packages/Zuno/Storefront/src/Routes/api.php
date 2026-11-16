@@ -5,6 +5,7 @@ use Zuno\Storefront\Http\Controllers\AccountController;
 use Zuno\Storefront\Http\Controllers\CatalogController;
 use Zuno\Storefront\Http\Controllers\CheckoutController;
 use Zuno\Storefront\Http\Controllers\GoogleLoginController;
+use Zuno\Storefront\Http\Controllers\MessageController;
 use Zuno\Storefront\Http\Controllers\ReviewController;
 
 /*
@@ -25,6 +26,10 @@ Route::get('products/{slug}', [CatalogController::class, 'show']);
 Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
 
 Route::post('products/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:5,1');
+
+Route::post('orders/track', [AccountController::class, 'track'])->middleware('throttle:10,1');
+
+Route::post('messages', [MessageController::class, 'store'])->middleware('throttle:5,1');
 
 Route::post('cart/quote', [CheckoutController::class, 'quote'])->middleware('throttle:30,1');
 

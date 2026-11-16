@@ -43,6 +43,7 @@ class StorefrontServiceProvider extends ServiceProvider
             ->group(dirname(__DIR__).'/Routes/admin.php');
 
         $this->loadViewsFrom(dirname(__DIR__).'/Resources/views', 'zuno');
+        $this->loadMigrationsFrom(dirname(__DIR__).'/Database/Migrations');
 
         // Custom-tee artwork appears under its line on the admin order page
         Event::listen('bagisto.admin.sales.order.list.item.after', function (ViewRenderEventManager $manager) {
@@ -120,6 +121,15 @@ class StorefrontServiceProvider extends ServiceProvider
 
                 return $item;
             });
+
+        // Contact-page messages, right after Orders
+        $menu->push([
+            'key' => 'messages',
+            'name' => 'Messages',
+            'route' => 'zuno.admin.messages.index',
+            'sort' => 2.5,
+            'icon' => 'icon-notification',
+        ]);
 
         config(['menu.admin' => $menu->values()->all()]);
     }

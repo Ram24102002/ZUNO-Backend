@@ -106,6 +106,43 @@ class AccountController extends Controller
         return response()->json($this->orderData($this->findOrder($number)));
     }
 
+    /**
+     * Order tracking without logging in (guest checkout): the order number plus the email or phone used
+     * at checkout. The street address and phone are left out of the answer, and cancelling needs an account.
+     */
+    public function track(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'number' => 'required|string|max:30',
+            'contact' => 'required|string|max:120',
+        ]);
+
+        $order = $this->orderRepository->getModel()
+            ->where('increment_id', ltrim(trim($data['number']), '#'))
+            ->first();
+
+        $contact = trim($data['contact']);
+        $digits = substr(preg_replace('/\D/', '', $contact), -10);
+        $address = $order?->shipping_address ?? $order?->billing_address;
+
+        $matches = $order && (
+            (str_contains($contact, '@') && strcasecmp($order->customer_email, $contact) === 0)
+            || (strlen($digits) === 10 && $address && substr(preg_replace('/\D/', '', (string) $address->phone), -10) === $digits)
+        );
+
+        if (! $matches) {
+            return response()->json(['error' => "We couldn't find an order with those details. Check the order number and the email or phone you used at checkout."], 404);
+        }
+
+        $result = $this->orderData($order);
+        $result['canCancel'] = false;
+        if ($result['address']) {
+            $result['address'] = ['name' => $result['address']['name'], 'city' => $result['address']['city'], 'state' => $result['address']['state']];
+        }
+
+        return response()->json($result);
+    }
+
     /** Cancels an order that has not been paid, invoiced or shipped yet. */
     public function cancel(string $number): JsonResponse
     {
