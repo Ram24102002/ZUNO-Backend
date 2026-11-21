@@ -10,6 +10,7 @@ use Webkul\Core\Http\Middleware\PreventRequestsDuringMaintenance;
 use Webkul\Theme\ViewRenderEventManager;
 use Zuno\Storefront\Console\Commands\Setup;
 use Zuno\Storefront\Http\Controllers\AdminHomeController;
+use Zuno\Storefront\Http\Middleware\ViewOnlyAdmin;
 
 /**
  * The ZUNO storefront: a JSON API for the React site (catalogue, checkout, Razorpay),
@@ -41,6 +42,15 @@ class StorefrontServiceProvider extends ServiceProvider
         Route::prefix(config('app.admin_url').'/zuno')
             ->middleware(['web', 'admin'])
             ->group(dirname(__DIR__).'/Routes/admin.php');
+
+        // "Viewer" admins: every admin page is read-only (Bagisto's own and ZUNO's)
+        $this->app['router']->pushMiddlewareToGroup('web', ViewOnlyAdmin::class);
+
+        Event::listen('bagisto.admin.layout.content.before', function (ViewRenderEventManager $manager) {
+            if (ViewOnlyAdmin::isViewer()) {
+                $manager->addTemplate('zuno::admin.view-only-banner');
+            }
+        });
 
         $this->loadViewsFrom(dirname(__DIR__).'/Resources/views', 'zuno');
         $this->loadMigrationsFrom(dirname(__DIR__).'/Database/Migrations');
@@ -129,6 +139,15 @@ class StorefrontServiceProvider extends ServiceProvider
             'route' => 'zuno.admin.messages.index',
             'sort' => 2.5,
             'icon' => 'icon-notification',
+        ]);
+
+        // The sentences of the shop's live bar (above the navbar)
+        $menu->push([
+            'key' => 'live_bar',
+            'name' => 'Live bar',
+            'route' => 'zuno.admin.announcements.index',
+            'sort' => 2.6,
+            'icon' => 'icon-cms',
         ]);
 
         config(['menu.admin' => $menu->values()->all()]);

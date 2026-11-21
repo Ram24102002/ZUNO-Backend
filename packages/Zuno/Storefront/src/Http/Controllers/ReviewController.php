@@ -49,6 +49,39 @@ class ReviewController extends Controller
         ]);
     }
 
+    /**
+     * Home-page testimonials: the latest approved 4–5 star reviews across all listed products.
+     * Only real, approved reviews; an empty list hides the section on the site.
+     */
+    public function testimonials(): JsonResponse
+    {
+        $censor = (bool) core()->getConfigData('catalog.products.review.censoring_reviewer_name');
+
+        $reviews = \Webkul\Product\Models\ProductReview::query()
+            ->with('product')
+            ->where('status', 'approved')
+            ->where('rating', '>=', 4)
+            ->latest()
+            ->limit(30)
+            ->get()
+            ->filter(fn ($review) => $review->product
+                && $review->product->url_key
+                && $this->catalog->findBySlug($review->product->url_key))
+            ->take(12)
+            ->map(fn ($review) => [
+                'id' => $review->id,
+                'name' => $censor ? $this->censor($review->name) : $review->name,
+                'title' => $review->title,
+                'comment' => $review->comment,
+                'rating' => (int) $review->rating,
+                'product' => ['name' => $review->product->name, 'slug' => $review->product->url_key],
+                'verified' => $review->customer_id && $this->bought($review->customer_id, $review->product_id),
+            ])
+            ->values();
+
+        return response()->json($reviews);
+    }
+
     public function store(Request $request, string $slug): JsonResponse
     {
         $product = $this->catalog->findBySlug($slug) ?? abort(404);

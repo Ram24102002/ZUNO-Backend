@@ -43,6 +43,7 @@ class Setup extends Command
     public function handle(): int
     {
         $this->applySettings();
+        $this->createViewerRole();
 
         $products = json_decode(file_get_contents(dirname(__DIR__, 3).'/data/products.json'), true);
 
@@ -71,6 +72,26 @@ class Setup extends Command
         $this->components->info($created ? "ZUNO catalogue ready ($created products created)." : 'ZUNO catalogue already in place.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The "Viewer" admin role: sees every page, changes nothing. Bagisto lets the role open
+     * everything; the ViewOnlyAdmin middleware refuses every change. Created once, never overwritten.
+     */
+    protected function createViewerRole(): void
+    {
+        if (DB::table('roles')->where('name', 'Viewer')->exists()) {
+            return;
+        }
+
+        DB::table('roles')->insert([
+            'name' => 'Viewer',
+            'description' => 'Can view every admin page but cannot change anything.',
+            'permission_type' => 'all',
+            'permissions' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /** Free delivery only, guest checkout, and the shop's name. */

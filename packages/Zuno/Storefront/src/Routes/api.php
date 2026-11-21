@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Zuno\Storefront\Http\Controllers\AccountController;
+use Zuno\Storefront\Http\Controllers\AnnouncementController;
 use Zuno\Storefront\Http\Controllers\CatalogController;
 use Zuno\Storefront\Http\Controllers\CheckoutController;
 use Zuno\Storefront\Http\Controllers\GoogleLoginController;
@@ -17,6 +18,8 @@ Route::get('health', fn () => ['ok' => true]);
 
 Route::get('config', [CatalogController::class, 'config']);
 
+Route::get('announcements', [AnnouncementController::class, 'list']);
+
 Route::get('filters', [CatalogController::class, 'filters']);
 
 Route::get('products', [CatalogController::class, 'index']);
@@ -24,6 +27,8 @@ Route::get('products', [CatalogController::class, 'index']);
 Route::get('products/{slug}', [CatalogController::class, 'show']);
 
 Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
+
+Route::get('testimonials', [ReviewController::class, 'testimonials']);
 
 Route::post('products/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:5,1');
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Zuno\Storefront\Http\Controllers\AnnouncementController;
 use Zuno\Storefront\Http\Controllers\DesignController;
 use Zuno\Storefront\Http\Controllers\MessageController;
 
@@ -12,5 +13,13 @@ Route::controller(MessageController::class)->prefix('messages')->name('zuno.admi
     Route::get('/', 'index')->name('index');
     Route::post('read-all', 'markAllRead')->name('read_all');
     Route::post('{id}/read', 'markRead')->whereNumber('id')->name('read');
+    Route::delete('{id}', 'destroy')->whereNumber('id')->name('destroy');
+});
+
+Route::controller(AnnouncementController::class)->prefix('live-bar')->name('zuno.admin.announcements.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/', 'store')->name('store');
+    Route::put('{id}', 'update')->whereNumber('id')->name('update');
+    Route::post('{id}/move/{direction}', 'move')->whereNumber('id')->where('direction', 'up|down')->name('move');
     Route::delete('{id}', 'destroy')->whereNumber('id')->name('destroy');
 });

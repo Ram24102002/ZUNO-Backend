@@ -32,6 +32,9 @@ return [
     // Stock given to every size and colour when the catalogue is first created
     'initial_stock' => 50,
 
+    // Admin roles that can see every page but change nothing (zuno:setup creates "Viewer")
+    'viewer_roles' => ['Viewer'],
+
     'max_lines' => 10,
     'max_quantity' => 20,
     'max_artwork' => 6,
