@@ -8,6 +8,7 @@ use Zuno\Storefront\Http\Controllers\CheckoutController;
 use Zuno\Storefront\Http\Controllers\GoogleLoginController;
 use Zuno\Storefront\Http\Controllers\MessageController;
 use Zuno\Storefront\Http\Controllers\ReviewController;
+use Zuno\Storefront\Http\Controllers\SitemapController;
 
 /*
  * Served under /api/zuno with the "web" middleware: a session cookie keeps customers logged in,
@@ -15,6 +16,9 @@ use Zuno\Storefront\Http\Controllers\ReviewController;
  */
 
 Route::get('health', fn () => ['ok' => true]);
+
+// Served to search engines as /sitemap.xml on the shop's domain (vercel.json rewrites it here)
+Route::get('sitemap.xml', SitemapController::class);
 
 Route::get('config', [CatalogController::class, 'config']);
 
