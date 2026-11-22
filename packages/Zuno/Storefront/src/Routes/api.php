@@ -65,3 +65,6 @@ Route::prefix('account')->controller(AccountController::class)->group(function (
         Route::post('orders/{number}/cancel', 'cancel');
     });
 });
+
+// Anything else under /api/zuno answers with JSON, never Bagisto's own storefront pages
+Route::any('{any}', fn () => response()->json(['error' => 'Not found'], 404))->where('any', '.*');
