@@ -3,11 +3,22 @@
     "id": "jersey-80",
     "category": "Oversized Tees",
     "name": "Jersey 80 Oversized Tee",
-    "colors": ["Black", "Brown", "Green", "Cream"],
+    "colors": [
+      "Black",
+      "Brown",
+      "Green",
+      "Cream"
+    ],
     "swatch": "#1a1a1a",
     "price": 799,
     "tag": "New",
-    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
     "description": "Drop-shoulder oversized fit with a bold 80 on the chest and contrast piping on the sleeves. Heavyweight cotton built for the gym and the street.",
     "images": [
       "/images/products/jersey-80-1.webp",
@@ -21,11 +32,21 @@
     "id": "flame-graphic-tee",
     "category": "Graphic Tees",
     "name": "Flame Graphic Tee",
-    "colors": ["Cream", "White", "Orange", "Purple"],
+    "colors": [
+      "Cream",
+      "White",
+      "Orange",
+      "Purple"
+    ],
     "swatch": "#efe6cf",
     "price": 849,
     "tag": "",
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
     "description": "Oversized tee with a statement flame graphic on the front and a clean back. Relaxed drop-shoulder cut, soft hand-feel cotton.",
     "images": [
       "/images/products/flame-tee-1.webp",
@@ -38,16 +59,213 @@
     "id": "essential-polo",
     "category": "Polos",
     "name": "Essential Polo",
-    "colors": ["Bottle Green"],
+    "colors": [
+      "Bottle Green"
+    ],
     "swatch": "#1f4d3a",
     "price": 699,
     "tag": "",
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
     "description": "Clean everyday polo in deep bottle green with a small ZUNO claw mark on the chest.",
     "images": [
       "/images/products/polo-green-1.webp",
       "/images/products/polo-green-2.webp",
       "/images/products/polo-green-3.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "acid-wash-oversized-tee",
+    "category": "Oversized Tees",
+    "name": "Acid Wash Oversized Tee",
+    "colors": [
+      "Charcoal"
+    ],
+    "swatch": "#3b3d42",
+    "price": 999,
+    "tag": "New",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Vintage acid-wash finish on a heavyweight oversized tee. Drop shoulders and a small ZUNO wordmark on the chest.",
+    "images": [
+      "/images/products/acid-wash-oversized-tee-1.webp",
+      "/images/products/acid-wash-oversized-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "mindset-back-print-tee",
+    "category": "Graphic Tees",
+    "name": "Mindset Back Print Tee",
+    "colors": [
+      "White"
+    ],
+    "swatch": "#f3f3f1",
+    "price": 899,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Clean front with a bold WEAR YOUR MINDSET print across the back. Oversized drop-shoulder fit.",
+    "images": [
+      "/images/products/mindset-back-print-tee-1.webp",
+      "/images/products/mindset-back-print-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "claw-mark-oversized-tee",
+    "category": "Graphic Tees",
+    "name": "Claw Mark Oversized Tee",
+    "colors": [
+      "Black"
+    ],
+    "swatch": "#1b1b1d",
+    "price": 849,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Jet black oversized tee with the blue ZUNO claw mark on the front and a big ZUNO on the back.",
+    "images": [
+      "/images/products/claw-mark-oversized-tee-1.webp",
+      "/images/products/claw-mark-oversized-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "sky-blue-oversized-tee",
+    "category": "Oversized Tees",
+    "name": "Sky Blue Oversized Tee",
+    "colors": [
+      "Sky Blue"
+    ],
+    "swatch": "#8cc8f2",
+    "price": 749,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Light sky blue oversized tee in soft heavyweight cotton. An easy everyday staple.",
+    "images": [
+      "/images/products/sky-blue-oversized-tee-1.webp",
+      "/images/products/sky-blue-oversized-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "sand-oversized-tee",
+    "category": "Oversized Tees",
+    "name": "Sand Oversized Tee",
+    "colors": [
+      "Sand"
+    ],
+    "swatch": "#d6c3a0",
+    "price": 749,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Warm sand oversized tee with a relaxed drop-shoulder cut and a small chest wordmark.",
+    "images": [
+      "/images/products/sand-oversized-tee-1.webp",
+      "/images/products/sand-oversized-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "zero-to-one-graphic-tee",
+    "category": "Graphic Tees",
+    "name": "Zero To One Graphic Tee",
+    "colors": [
+      "Cream"
+    ],
+    "swatch": "#efe6cf",
+    "price": 849,
+    "tag": "New",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "description": "Cream oversized tee with a loud ZERO TO ONE print. For the ones starting from nothing.",
+    "images": [
+      "/images/products/zero-to-one-graphic-tee-1.webp",
+      "/images/products/zero-to-one-graphic-tee-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "olive-essential-polo",
+    "category": "Polos",
+    "name": "Olive Essential Polo",
+    "colors": [
+      "Olive"
+    ],
+    "swatch": "#5b6b3a",
+    "price": 699,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "description": "Everyday polo in olive green with a small ZUNO claw mark on the chest.",
+    "images": [
+      "/images/products/olive-essential-polo-1.webp",
+      "/images/products/olive-essential-polo-2.webp"
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "navy-essential-polo",
+    "category": "Polos",
+    "name": "Navy Essential Polo",
+    "colors": [
+      "Navy"
+    ],
+    "swatch": "#1f2d4d",
+    "price": 699,
+    "tag": "",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "description": "Everyday polo in deep navy with a small ZUNO claw mark on the chest.",
+    "images": [
+      "/images/products/navy-essential-polo-1.webp",
+      "/images/products/navy-essential-polo-2.webp"
     ],
     "soldOut": false
   }
