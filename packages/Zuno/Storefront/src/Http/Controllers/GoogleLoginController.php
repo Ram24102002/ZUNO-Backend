@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GoogleProvider;
+use Laravel\Socialite\Two\InvalidStateException;
 use Webkul\Customer\Repositories\CustomerGroupRepository;
 use Webkul\Customer\Repositories\CustomerRepository;
 use Webkul\SocialLogin\Repositories\CustomerSocialAccountRepository;
@@ -49,7 +50,10 @@ class GoogleLoginController extends Controller
         $from = (string) $request->query('from', '/account');
         $request->session()->put('zuno.google.from', $this->safePath($from));
 
-        return $this->provider()->scopes(['openid', 'email', 'profile'])->redirect();
+        $response = $this->provider()->scopes(['openid', 'email', 'profile'])->redirect();
+        $response->headers->set('Cache-Control', 'no-store, private');
+
+        return $response;
     }
 
     public function callback(Request $request): RedirectResponse
@@ -66,6 +70,10 @@ class GoogleLoginController extends Controller
 
         try {
             $user = $this->provider()->user();
+        } catch (InvalidStateException $e) {
+            report($e);
+
+            return $this->backToShop('Your Google sign-in session expired or was interrupted. Select Continue with Google to try again.');
         } catch (\Throwable $e) {
             report($e);
 
@@ -161,7 +169,12 @@ class GoogleLoginController extends Controller
 
     public static function callbackUrl(): string
     {
-        return config('zuno.frontend_url').'/api/zuno/account/google/callback';
+        return self::startUrl().'/callback';
+    }
+
+    public static function startUrl(): string
+    {
+        return config('zuno.frontend_url').'/api/zuno/account/google';
     }
 
     /** Keys from the environment, else from the admin's Social Login settings. */

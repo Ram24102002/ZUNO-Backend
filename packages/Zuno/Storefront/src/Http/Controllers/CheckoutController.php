@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Webkul\Checkout\Facades\Cart;
 use Webkul\CartRule\Repositories\CartRuleCouponRepository;
 use Webkul\Checkout\Repositories\CartRepository;
@@ -30,7 +31,7 @@ use Zuno\Storefront\Support\Designs;
  * every line plus the delivery details, and this builds a Bagisto cart from them, prices it with
  * Bagisto's own rules and stock, and turns it into a Bagisto order.
  *
- * Cash on delivery: the order is created straight away.
+ * Cash on delivery and manual UPI via WhatsApp: the order is created straight away.
  * Razorpay: a Razorpay order is opened for the cart total and the Bagisto order is only created
  * once the payment is verified (POST /orders/pay), the same way Bagisto's own Razorpay checkout works.
  */
@@ -104,7 +105,8 @@ class CheckoutController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $this->validateOrder($request);
-        $method = $this->razorpay->isAvailable() ? 'razorpay' : 'cashondelivery';
+        $paymentChoice = $data['paymentMethod'] ?? null;
+        $method = $paymentChoice === null && $this->razorpay->isAvailable() ? 'razorpay' : 'cashondelivery';
         $savedFiles = [];
 
         try {
@@ -143,9 +145,10 @@ class CheckoutController extends Controller
         }
 
         if ($method === 'cashondelivery') {
-            $order = $this->placeOrder($cart, $data['note'] ?? null);
+            $paymentChoice ??= 'cod';
+            $order = $this->placeOrder($cart, $data['note'] ?? null, $paymentChoice);
 
-            return response()->json($this->orderSummary($order), 201);
+            return response()->json($this->orderSummary($order) + ['paymentMethod' => $paymentChoice], 201);
         }
 
         try {
@@ -267,6 +270,7 @@ class CheckoutController extends Controller
             'note' => 'nullable|string|max:500',
             'coupon' => 'nullable|string|max:50',
             'saveAddress' => 'nullable|boolean',
+            'paymentMethod' => ['nullable', 'string', Rule::in(['upi', 'cod'])],
         ]), [
             'postcode.regex' => 'Enter a 6-digit PIN code.',
             'phone.regex' => 'A valid phone number is required.',
@@ -423,11 +427,20 @@ class CheckoutController extends Controller
         }
     }
 
-    protected function placeOrder($cart, ?string $note)
+    protected function placeOrder($cart, ?string $note, string $paymentChoice)
     {
-        return DB::transaction(function () use ($cart, $note) {
+        return DB::transaction(function () use ($cart, $note, $paymentChoice) {
             $order = $this->orderRepository->create((new OrderResource($cart))->jsonSerialize());
             $this->addNote($order, $note);
+
+            if ($paymentChoice === 'upi') {
+                $this->orderCommentRepository->create([
+                    'order_id' => $order->id,
+                    'comment' => 'Payment requested by UPI. Send the QR code and UPI ID via WhatsApp. Payment is pending.',
+                    'customer_notified' => 0,
+                ]);
+            }
+
             Cart::deActivateCart();
 
             return $order->refresh();

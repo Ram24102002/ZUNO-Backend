@@ -57,6 +57,7 @@ class CatalogController extends Controller
     {
         $tee = config('zuno.custom_tee');
         $product = $this->catalog->customTee();
+        $googleLogin = GoogleLoginController::enabled();
 
         return response()->json([
             'customTee' => [
@@ -70,7 +71,8 @@ class CatalogController extends Controller
             'razorpayKeyId' => $this->razorpayKeyId(),
             // Whether shoppers must log in to write a review (Configure > Catalog > Products in the admin)
             'guestReviews' => (bool) core()->getConfigData('catalog.products.review.guest_review'),
-            'googleLogin' => GoogleLoginController::enabled(),
+            'googleLogin' => $googleLogin,
+            'googleLoginUrl' => $googleLogin ? GoogleLoginController::startUrl() : null,
             // ZUNO delivers in India; the checkout's state list
             'states' => $this->countryStateRepository->findWhere(['country_code' => 'IN'])
                 ->sortBy('default_name')
